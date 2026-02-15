@@ -18,7 +18,11 @@ const NIM_API_KEY = process.env.NIM_API_KEY;
 const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
 
 // 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
-const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwargs thinking parameter
+const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs thinking parameter
+
+// 🔥 THINKING TOKEN LIMITS
+const MAX_THINKING_TOKENS = 1000; // Maximum tokens for reasoning/thinking
+const MAX_RESPONSE_TOKENS = 3000; // Maximum tokens for the actual response
 
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
@@ -38,7 +42,9 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     service: 'OpenAI to NVIDIA NIM Proxy', 
     reasoning_display: SHOW_REASONING,
-    thinking_mode: ENABLE_THINKING_MODE
+    thinking_mode: ENABLE_THINKING_MODE,
+    max_thinking_tokens: MAX_THINKING_TOKENS,
+    max_response_tokens: MAX_RESPONSE_TOKENS
   });
 });
 
@@ -94,13 +100,24 @@ app.post('/v1/chat/completions', async (req, res) => {
       }
     }
     
+    // Build extra_body with thinking parameters
+    let extraBody = undefined;
+    if (ENABLE_THINKING_MODE) {
+      extraBody = {
+        chat_template_kwargs: {
+          thinking: true,
+          max_thinking_tokens: MAX_THINKING_TOKENS
+        }
+      };
+    }
+    
     // Transform OpenAI request to NIM format
     const nimRequest = {
       model: nimModel,
       messages: messages,
       temperature: temperature || 0.6,
-      max_tokens: max_tokens || 9024,
-      extra_body: ENABLE_THINKING_MODE ? { chat_template_kwargs: { thinking: true } } : undefined,
+      max_tokens: max_tokens || MAX_RESPONSE_TOKENS,
+      extra_body: extraBody,
       stream: stream || false
     };
     
@@ -245,4 +262,6 @@ app.listen(PORT, () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Reasoning display: ${SHOW_REASONING ? 'ENABLED' : 'DISABLED'}`);
   console.log(`Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
+  console.log(`Max thinking tokens: ${MAX_THINKING_TOKENS}`);
+  console.log(`Max response tokens: ${MAX_RESPONSE_TOKENS}`);
 });

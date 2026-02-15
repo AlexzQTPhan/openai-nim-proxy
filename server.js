@@ -18,11 +18,11 @@ const NIM_API_KEY = process.env.NIM_API_KEY;
 const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
 
 // 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
-const ENABLE_THINKING_MODE = true; // Set to true to enable chat_template_kwargs thinking parameter
+const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwargs thinking parameter
 
 // 🔥 THINKING TOKEN LIMITS
-const MAX_THINKING_TOKENS = 1000; // Maximum tokens for reasoning/thinking
-const MAX_RESPONSE_TOKENS = 3000; // Maximum tokens for the actual response
+const MAX_THINKING_TOKENS = 0; // Maximum tokens for reasoning/thinking
+const MAX_RESPONSE_TOKENS = 4000; // Maximum tokens for the actual response
 
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
